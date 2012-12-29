@@ -8,8 +8,8 @@ var uuid = require('node-uuid');
 // ******************************************
 // Poor man's auto-increment
 // ******************************************
-// In production, the transaction database should be set to something else 
-// with true, database-side auto-increment capabilities
+// In production databases, auto-increment capabilities are built-in
+// However, that is not the case with dirty.
 // This in-memory auto-increment will not scale to a multi-instance / cluster setup.
 // ******************************************
 var statusDb = {};
@@ -18,7 +18,7 @@ var statusDb = {};
 	:: DirtyAdapter
 	-> adapter
 
-	*this refers to the adapter
+	*this* context refers to the adapter
 ---------------------*/
 
 // This disk+memory adapter is for development only!
