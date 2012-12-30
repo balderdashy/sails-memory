@@ -6,15 +6,6 @@
 	Learn more: https://github.com/felixge/node-dirty
 ---------------------------------------------------------------*/
 
-// Public API
-//	* NOTE: The public API for adapters is a function that can be passed a set of options
-//	* It returns the complete adapter, augmented with the options provided
-module.exports = function (options) {
-	adapter.config = _.extend(adapter.config, options || {});
-	return adapter;
-};
-
-
 // Poor man's auto-increment
 //	* NOTE: In production databases, auto-increment capabilities 
 //	* are built-in.  However, that is not the case with dirty.
@@ -405,3 +396,12 @@ function getOldest(locks) {
 	});
 	return currentLock;
 }
+
+
+// Public API
+//	* NOTE: The public API for adapters is a function that can be passed a set of options
+//	* It returns the complete adapter, augmented with the options provided
+module.exports = function (options) {
+	adapter.config = _.extend(adapter.config, options || {});
+	return adapter;
+};
