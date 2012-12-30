@@ -1,0 +1,24 @@
+{
+  "name": "waterline-dirty",
+  "version": "0.0.0",
+  "description": "Waterline adapter for felixge's node-dirty",
+  "main": "DirtyAdapter.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/balderdashy/waterline-dirty.git"
+  },
+  "keywords": [
+    "waterline",
+    "database",
+    "in-memory",
+    "sails",
+    "dirty",
+    "dirtydb"
+  ],
+  "author": "Mike McNeil",
+  "license": "MIT",
+  "readmeFilename": "README.md"
+}
