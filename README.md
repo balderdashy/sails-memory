@@ -9,7 +9,7 @@ Waterline also comes with built-in transaction support, as well as a configurabl
 > NOTE: Waterline is currently in unreleased alpha-- that means it's not production ready!  If you want to use waterline in a production app, please contribute.  Currentliy, the plan is for an open alpha release early next year (2013).  Thanks!
 You can learn more about
 
-*Waterline repo:* https://github.com/mikermcneil/waterline
+*Waterline repo: https://github.com/mikermcneil/waterline*
 
 
 ## Writing your own adapters
