@@ -1,3 +1,27 @@
+/*---------------------------------------------------------------
+	:: DirtyAdapter
+	-> adapter
+
+	This disk+memory adapter is for development only!
+	Learn more: https://github.com/felixge/node-dirty
+---------------------------------------------------------------*/
+
+// Public API
+//	* NOTE: The public API for adapters is a function that can be passed a set of options
+//	* It returns the complete adapter, augmented with the options provided
+module.exports = function (options) {
+	adapter.config = _.extend(adapter.config, options || {});
+	return adapter;
+};
+
+
+// Poor man's auto-increment
+//	* NOTE: In production databases, auto-increment capabilities 
+//	* are built-in.  However, that is not the case with dirty.
+//	* This in-memory auto-increment will not scale to a multi-instance / cluster setup.
+var statusDb = {};
+
+
 // Dependencies
 var async = require('async');
 var _ = require('underscore');
@@ -5,25 +29,8 @@ var dirty = require('dirty');
 var parley = require('parley');
 var uuid = require('node-uuid');
 
-// ******************************************
-// Poor man's auto-increment
-// ******************************************
-// In production databases, auto-increment capabilities are built-in
-// However, that is not the case with dirty.
-// This in-memory auto-increment will not scale to a multi-instance / cluster setup.
-// ******************************************
-var statusDb = {};
 
-/*---------------------
-	:: DirtyAdapter
-	-> adapter
-
-	*this* context refers to the adapter
----------------------*/
-
-// This disk+memory adapter is for development only!
-// Learn more: https://github.com/felixge/node-dirty
-var adapter = module.exports = {
+var adapter = {
 
 	config: {
 
