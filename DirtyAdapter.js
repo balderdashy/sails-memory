@@ -71,6 +71,15 @@ var adapter = module.exports = {
 		}
 	},
 
+	// Logic to handle the (re)instantiation of collections
+	initializeCollection: function(collectionName, cb) {
+		// Grab current auto-increment value from database and populate it in-memory
+		var schema = this.db.get(this.config.schemaPrefix + collectionName);
+		statusDb[collectionName] = (schema && schema.autoIncrement) ? schema : {autoIncrement: 1};
+		// console.log("AI for "+collectionName+" loaded from disk as::",statusDb[collectionName], "schema:",schema);
+		cb();
+	},
+
 	// Logic to handle flushing collection data to disk before the adapter shuts down
 	teardownCollection: function(collectionName, cb) {
 		var my = this;
@@ -95,20 +104,6 @@ var adapter = module.exports = {
 		var schema = this.db.get(this.config.schemaPrefix + collectionName);
 		var attributes = schema && schema.attributes;
 		return cb(null, attributes);
-	},
-
-	// Fetch the current auto-increment value
-	getAutoIncrement: function (collectionName,cb) {
-		var schema = this.db.get(this.config.schemaPrefix + collectionName);
-		return cb(err,schema.autoIncrement);
-	},
-
-	// Persist the current auto-increment value
-	setAutoIncrement: function (collectionName,cb) {
-		this.db.set(this.config.schemaPrefix + collectionName, {
-
-		});
-		return cb(err,schema.autoIncrement);
 	},
 
 	// Create a new collection
