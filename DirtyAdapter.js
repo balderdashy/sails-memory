@@ -372,8 +372,25 @@ function matchItem(model, key, criterion) {
 		return matchAnd(model, criterion);
 	} else if(key.toLowerCase() === 'like') {
 		return matchLike(model, criterion);
+	} else if (_.isArray(criterion)) {
+		// IN query
+		return _.any(criterion, function (val){
+			return model[key] === val;
+		});
 	}
-	// Otherwise this is an attribute name: ensure it exists and matches
+
+	// TODO: IN query
+	// else if(model[key] && _.isObject(model[key])) {
+	// 	var inKey = 'in';
+	// 	if (model[key]['IN']) inKey = 'IN';
+	// 	if (!_.isArray(model[key][inKey])) throw new Error('Incorrect usage of IN query.');
+	// 	_.any(model[key][inKey], function (item) {
+	// 		return item === criterion[];
+	// 	});
+	// 	return matchIn(model[key], criterion);
+	// }
+
+	// Otherwise this key is an attribute name: ensure it exists and matches
 	else if(!model[key] || (model[key] !== criterion)) {
 		return false;
 	}
