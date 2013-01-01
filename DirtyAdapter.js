@@ -305,6 +305,7 @@ function doAutoIncrement (collectionName, attributes, values, ctx, cb) {
 
 // Run criteria query against data aset
 function applyFilter(data, criteria) {
+	// console.log("FILTERING ",data,"ON",criteria);
 	if(criteria && data) {
 		return _.filter(data, function(model) {
 			return matchSet(model, criteria);
@@ -320,9 +321,11 @@ function matchSet(model, criteria) {
 	if(!criteria) return true;
 
 	// By default, treat entries as AND
-	for(var key in criteria) {
-		if(!matchItem(model, key, criteria[key])) return false;
-	}
+	// console.log("\n\n**** Checking criteria: ",criteria);
+	_.each(criteria,function(criterion,key) {
+		// console.log("K",key, criterion, model[key]);
+		if(!matchItem(model, key, criterion)) return false;
+	});
 	return true;
 }
 
@@ -361,6 +364,7 @@ function matchNot(model, criteria) {
 }
 
 function matchItem(model, key, criterion) {
+
 	// Make attribute names case insensitive unless overridden in config
 	if(!adapter.config.attributesCaseSensitive) key = key.toLowerCase();
 
