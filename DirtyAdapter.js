@@ -74,7 +74,6 @@ var adapter = {
 		// Grab current auto-increment value from database and populate it in-memory
 		var schema = this.db.get(this.config.schemaPrefix + collectionName);
 		statusDb[collectionName] = (schema && schema.autoIncrement) ? schema : {autoIncrement: 1};
-		// console.log("AI for "+collectionName+" loaded from disk as::",statusDb[collectionName], "schema:",schema);
 		cb();
 	},
 
@@ -84,7 +83,6 @@ var adapter = {
 		
 		// Always go ahead and write the new auto-increment to disc, even though it will be wrong sometimes
 		// (this is done so that the auto-increment counter can be "ressurected" when the adapter is restarted from disk)
-		// console.log("******** Wrote to "+collectionName+":: AI => ", statusDb[collectionName].autoIncrement);
 		var schema = _.extend(this.db.get(this.config.schemaPrefix + collectionName),{
 			autoIncrement: statusDb[collectionName].autoIncrement
 		});
@@ -193,7 +191,7 @@ var adapter = {
 		var order = options.order;
 		////////////////////////////////////////////////
 		var dataKey = this.config.dataPrefix + collectionName;
-		var data = this.db.get(dataKey);
+		var data = this.db.get(dataKey) || [];
 
 		// Query and return result set using criteria
 		var filteredData = applyFilter(data, criteria);
@@ -306,7 +304,6 @@ function doAutoIncrement (collectionName, attributes, values, ctx, cb) {
 
 // Run criteria query against data aset
 function applyFilter(data, criteria) {
-	// console.log("FILTERING ",data,"ON",criteria);
 	if(criteria && data) {
 		return _.filter(data, function(model) {
 			return matchSet(model, criteria);
@@ -346,8 +343,8 @@ function matchAnd(model, conjuncts) {
 
 function matchLike(model, criteria) {
 	for(var key in criteria) {
-		// Make attribute names case insensitive unless overridden in config
-		if(!adapter.config.attributesCaseSensitive) key = key.toLowerCase();
+		// TODO: Make attribute names case insensitive unless overridden in config
+		// if(!adapter.config.attributesCaseSensitive) key = key.toLowerCase();
 
 		// Check that criterion attribute and is at least similar to the model's value for that attr
 		if(!model[key] || (!~model[key].indexOf(criteria[key]))) {
@@ -363,8 +360,8 @@ function matchNot(model, criteria) {
 
 function matchItem(model, key, criterion) {
 
-	// Make attribute names case insensitive unless overridden in config
-	if(!adapter.config.attributesCaseSensitive) key = key.toLowerCase();
+	// TODO: Make attribute names case insensitive unless overridden in config
+	// if(!adapter.config.attributesCaseSensitive) key = key.toLowerCase();
 
 	if(key.toLowerCase() === 'or') {
 		return matchOr(model, criterion);
@@ -381,7 +378,9 @@ function matchItem(model, key, criterion) {
 		});
 	}
 	// ensure the key attr exists in model
-	else if (_.isUndefined(model[key])) return false;
+	else if (_.isUndefined(model[key])) {
+		return false;
+	}
 
 	// ensure the key attr matches model attr in model
 	else if((model[key] !== criterion)) {
