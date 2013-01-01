@@ -196,7 +196,8 @@ var adapter = {
 		var data = this.db.get(dataKey);
 
 		// Query and return result set using criteria
-		cb(null, applyFilter(data, criteria));
+		var filteredData = applyFilter(data, criteria);
+		cb(null, filteredData);
 	},
 
 	// Update one or more models in the collection
@@ -321,12 +322,9 @@ function matchSet(model, criteria) {
 	if(!criteria) return true;
 
 	// By default, treat entries as AND
-	// console.log("\n\n**** Checking criteria: ",criteria);
-	_.each(criteria,function(criterion,key) {
-		// console.log("K",key, criterion, model[key]);
-		if(!matchItem(model, key, criterion)) return false;
+	return _.all(criteria,function(criterion,key) {
+		return matchItem(model, key, criterion);
 	});
-	return true;
 }
 
 
@@ -382,42 +380,16 @@ function matchItem(model, key, criterion) {
 			return model[key] === val;
 		});
 	}
+	// ensure the key attr exists in model
+	else if (_.isUndefined(model[key])) return false;
 
-	// TODO: IN query
-	// else if(model[key] && _.isObject(model[key])) {
-	// 	var inKey = 'in';
-	// 	if (model[key]['IN']) inKey = 'IN';
-	// 	if (!_.isArray(model[key][inKey])) throw new Error('Incorrect usage of IN query.');
-	// 	_.any(model[key][inKey], function (item) {
-	// 		return item === criterion[];
-	// 	});
-	// 	return matchIn(model[key], criterion);
-	// }
-
-	// Otherwise this key is an attribute name: ensure it exists and matches
-	else if(!model[key] || (model[key] !== criterion)) {
+	// ensure the key attr matches model attr in model
+	else if((model[key] !== criterion)) {
 		return false;
 	}
+	// Otherwise this is a match
 	return true;
 }
-
-// Number of miliseconds since the Unix epoch Jan 1st, 1970
-
-function epoch() {
-	return(new Date()).getTime();
-}
-
-// Return the oldest lock in the collection
-
-function getOldest(locks) {
-	var currentLock;
-	_.each(locks, function(lock) {
-		if(!currentLock) currentLock = lock;
-		else if(lock.timestamp < currentLock.timestamp) currentLock = lock;
-	});
-	return currentLock;
-}
-
 
 // Public API
 //	* NOTE: The public API for adapters is a function that can be passed a set of options
