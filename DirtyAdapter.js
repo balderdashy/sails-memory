@@ -371,8 +371,9 @@ function matchItem(model, key, criterion) {
 		return matchAnd(model, criterion);
 	} else if(key.toLowerCase() === 'like') {
 		return matchLike(model, criterion);
-	} else if (_.isArray(criterion)) {
-		// IN query
+	} 
+	// IN query
+	else if (_.isArray(criterion)) {
 		return _.any(criterion, function (val){
 			return model[key] === val;
 		});
