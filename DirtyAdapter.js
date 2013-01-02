@@ -134,13 +134,7 @@ var adapter = {
 		});
 	},
 
-	// Extend the schema for an existing collection
-	alter: function(collectionName, newAttrs, cb) {
-		this.log(" ALTERING " + collectionName);
-		var schema = this.db.get(this.config.schemaPrefix + collectionName);
-		schema = _.extend(schema.attributes, newAttrs);
-		return this.db.set(this.config.schemaPrefix + collectionName, schema, cb);
-	},
+	// No alter necessary-- use the default in waterline core
 
 
 
