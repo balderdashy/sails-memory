@@ -96,7 +96,7 @@ var adapter = {
 	// Fetch the schema for a collection
 	// (contains attributes and autoIncrement value)
 	describe: function(collectionName, cb) {	
-		this.log(" DESCRIBING :: " + collectionName);
+		this.log.verbose(" DESCRIBING :: " + collectionName);
 		var schema = this.db.get(this.config.schemaPrefix + collectionName);
 		var attributes = schema && schema.attributes;
 		return cb(null, attributes);
@@ -104,7 +104,7 @@ var adapter = {
 
 	// Create a new collection
 	define: function(collectionName, attributes, cb) {
-		this.log(" DEFINING " + collectionName, {
+		this.log.verbose(" DEFINING " + collectionName, {
 			as: schema
 		});
 		var self = this;
@@ -127,7 +127,7 @@ var adapter = {
 	// Drop an existing collection
 	drop: function(collectionName, cb) {
 		var self = this;
-		self.log(" DROPPING " + collectionName);
+		self.log.verbose(" DROPPING " + collectionName);
 		return self.db.rm(self.config.dataPrefix + collectionName, function(err) {
 			if(err) return cb("Could not drop collection!");
 			return self.db.rm(self.config.schemaPrefix + collectionName, cb);
@@ -140,7 +140,7 @@ var adapter = {
 
 	// Create one or more new models in the collection
 	create: function(collectionName, values, cb) {
-		this.log(" CREATING :: " + collectionName, values);
+		this.log.verbose(" CREATING :: " + collectionName, values);
 		values = values || {};
 		var dataKey = this.config.dataPrefix + collectionName;
 		var data = this.db.get(dataKey);
@@ -194,7 +194,7 @@ var adapter = {
 
 	// Update one or more models in the collection
 	update: function(collectionName, options, values, cb) {
-		this.log(" UPDATING :: " + collectionName, {
+		this.log.verbose(" UPDATING :: " + collectionName, {
 			options: options,
 			values: values
 		});
@@ -214,16 +214,16 @@ var adapter = {
 		// Query result set using criteria
 		var resultIndices = [];
 		_.each(data, function(row, index) {
-			my.log('matching row/index', {
+			my.log.verbose('matching row/index', {
 				row: row,
 				index: index
 			});
-			my.log("against", criteria);
-			my.log("with outcome", matchSet(row, criteria));
+			my.log.verbose("against", criteria);
+			my.log.verbose("with outcome", matchSet(row, criteria));
 
 			if(matchSet(row, criteria)) resultIndices.push(index);
 		});
-		this.log("filtered indices::", resultIndices, 'criteria', criteria);
+		this.log.verbose("filtered indices::", resultIndices, 'criteria', criteria);
 
 		// Update value(s)
 		_.each(resultIndices, function(index) {
@@ -238,7 +238,7 @@ var adapter = {
 
 	// Delete one or more models from the collection
 	destroy: function(collectionName, options, cb) {
-		this.log(" DESTROYING :: " + collectionName, options);
+		this.log.verbose(" DESTROYING :: " + collectionName, options);
 
 		var criteria = options.where;
 
