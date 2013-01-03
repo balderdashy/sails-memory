@@ -342,7 +342,7 @@ function matchLike(model, criteria) {
 		// if(!adapter.config.attributesCaseSensitive) key = key.toLowerCase();
 
 		// Check that criterion attribute and is at least similar to the model's value for that attr
-		if(!model[key] || _.str.include(model[key],criteria[key])) {
+		if(!model[key] || !_.str.include(model[key],criteria[key])) {
 			return false;
 		}
 	}
