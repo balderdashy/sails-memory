@@ -88,7 +88,7 @@ var adapter = {
 			autoIncrement: statusDb[collectionName].autoIncrement
 		});
 		this.db.set(this.config.schemaPrefix + collectionName, schema, function (err) {
-			my.db = null;
+			// my.db = null;
 			cb && cb(err);
 		});
 	},
