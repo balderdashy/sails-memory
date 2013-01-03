@@ -16,6 +16,7 @@ var statusDb = {};
 // Dependencies
 var async = require('async');
 var _ = require('underscore');
+_.str = require('underscore.string');
 var dirty = require('dirty');
 var parley = require('parley');
 var uuid = require('node-uuid');
@@ -341,7 +342,7 @@ function matchLike(model, criteria) {
 		// if(!adapter.config.attributesCaseSensitive) key = key.toLowerCase();
 
 		// Check that criterion attribute and is at least similar to the model's value for that attr
-		if(!model[key] || (!~model[key].indexOf(criteria[key]))) {
+		if(!model[key] || _.str.include(model[key],criteria[key])) {
 			return false;
 		}
 	}
