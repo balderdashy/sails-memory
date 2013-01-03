@@ -1,6 +1,6 @@
 {
   "name": "waterline-dirty",
-  "version": "0.0.0501",
+  "version": "0.0.0502",
   "description": "Waterline adapter for felixge's node-dirty",
   "main": "DirtyAdapter.js",
   "scripts": {
