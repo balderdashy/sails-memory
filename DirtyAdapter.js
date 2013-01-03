@@ -158,7 +158,6 @@ var adapter = {
 			self.describe(collectionName, function(err, attributes) {
 				if(err) return cb(err);
 
-				// TODO: add other fields with default values
 				// Create new model
 				// (if data collection doesn't exist yet, create it)
 				data = data || [];
@@ -338,8 +337,6 @@ function matchAnd(model, conjuncts) {
 
 function matchLike(model, criteria) {
 	for(var key in criteria) {
-		// TODO: Make attribute names case insensitive unless overridden in config
-		// if(!adapter.config.attributesCaseSensitive) key = key.toLowerCase();
 
 		// Check that criterion attribute and is at least similar to the model's value for that attr
 		if(!model[key] || !_.str.include(model[key],criteria[key])) {
@@ -354,9 +351,6 @@ function matchNot(model, criteria) {
 }
 
 function matchItem(model, key, criterion) {
-
-	// TODO: Make attribute names case insensitive unless overridden in config
-	// if(!adapter.config.attributesCaseSensitive) key = key.toLowerCase();
 
 	if(key.toLowerCase() === 'or') {
 		return matchOr(model, criterion);
