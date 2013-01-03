@@ -142,7 +142,7 @@ var adapter = {
 	// Create one or more new models in the collection
 	create: function(collectionName, values, cb) {
 		this.log.verbose(" CREATING :: " + collectionName, values);
-		values = values || {};
+		values = _.clone(values) || {};
 		var dataKey = this.config.dataPrefix + collectionName;
 		var data = this.db.get(dataKey);
 		var self = this;
