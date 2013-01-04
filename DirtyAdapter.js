@@ -175,21 +175,18 @@ var adapter = {
 	// using where, limit, skip, and order
 	// In where: handle `or`, `and`, and `like` queries
 	find: function(collectionName, options, cb) {
-
-		var criteria = options.where;
-
-		////////////////////////////////////////////////
-		// TODO: Make this shit actually work
-		var limit = options.limit;
-		var skip = options.skip;
-		var order = options.order;
-		////////////////////////////////////////////////
 		var dataKey = this.config.dataPrefix + collectionName;
 		var data = this.db.get(dataKey) || [];
 
-		// Query and return result set using criteria
-		var filteredData = applyFilter(data, criteria);
-		cb(null, filteredData);
+		// Get indices from original data which match, in order
+		var matchIndices = getMatchIndices(data,options);
+
+		var resultSet = [];
+		_.each(matchIndices,function (matchIndex) {
+			resultSet.push(data[matchIndex]);
+		});
+		
+		cb(null, resultSet);
 	},
 
 	// Update one or more models in the collection
@@ -206,7 +203,7 @@ var adapter = {
 		// TODO: Make this shit actually work
 		var limit = options.limit;
 		var skip = options.skip;
-		var order = options.order;
+		var order = options.sort;
 		////////////////////////////////////////////////
 		var dataKey = this.config.dataPrefix + collectionName;
 		var data = this.db.get(dataKey);
@@ -246,7 +243,7 @@ var adapter = {
 		// TODO: Make this shit actually work
 		var limit = options.limit;
 		var skip = options.skip;
-		var order = options.order;
+		var order = options.sort;
 		////////////////////////////////////////////////
 		var dataKey = this.config.dataPrefix + collectionName;
 		var data = this.db.get(dataKey);
@@ -298,11 +295,42 @@ function doAutoIncrement (collectionName, attributes, values, ctx, cb) {
 
 // Run criteria query against data aset
 function applyFilter(data, criteria) {
-	if(criteria && data) {
+	if(!data) return data;
+	else {
 		return _.filter(data, function(model) {
 			return matchSet(model, criteria);
 		});
-	} else return data;
+	}
+}
+
+function applyLimit(data, limit) {
+	return data;
+}
+function applySkip(data, skip) {
+	return data;
+}
+function applySort(data, sort) {
+	return data;
+}
+
+// Find models in data which satisfy the options criteria, 
+// then return their indices in order
+function getMatchIndices(data, options) {
+	// Remember original indices
+	var origIndexKey = '_waterline_dirty_origindex';
+	var set = _.clone(data);
+	_.each(set,function (model, index) {
+		// Determine origIndex key
+		// while (model[origIndexKey]) { origIndexKey = '_' + origIndexKey; }
+		model[origIndexKey] = index;
+	});
+
+	// Query and return result set using criteria
+	var matches = applyFilter(set, options.where);
+	matches = applySort(matches, options.sort);
+	matches = applySkip(matches, options.skip);
+	matches = applyLimit(matches, options.limit);
+	return _.pluck(matches,origIndexKey);
 }
 
 
