@@ -283,10 +283,11 @@ function applyFilter(data, criteria) {
 function applySort(data, sort) {
 	if (!sort || !data) return data;
 	else {
+		// TODO: support multiple sort attrs
+		// TODO: support descending sorts
 		// ASCENDING by default
-		// var result = _.sortBy(data,sort);
-		//TODO
-		return data;
+		var term = _.isObject(sort) ? sort[_.keys(sort)[0]] : sort;
+		return _.sortBy(data,term);
 	}
 }
 // Ignore the first *skip* models
@@ -309,15 +310,15 @@ function applyLimit(data, limit) {
 function getMatchIndices(data, options) {
 	// Remember original indices
 	var origIndexKey = '_waterline_dirty_origindex';
-	var set = _.clone(data);
-	_.each(set,function (model, index) {
+	var matches = _.clone(data);
+	_.each(matches,function (model, index) {
 		// Determine origIndex key
 		// while (model[origIndexKey]) { origIndexKey = '_' + origIndexKey; }
 		model[origIndexKey] = index;
 	});
 
 	// Query and return result set using criteria
-	var matches = applyFilter(set, options.where);
+	matches = applyFilter(matches, options.where);
 	matches = applySort(matches, options.sort);
 	matches = applySkip(matches, options.skip);
 	matches = applyLimit(matches, options.limit);
