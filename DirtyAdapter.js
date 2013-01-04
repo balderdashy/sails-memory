@@ -197,30 +197,12 @@ var adapter = {
 		});
 		var my = this;
 
-		var criteria = options.where;
-
-		////////////////////////////////////////////////
-		// TODO: Make this shit actually work
-		var limit = options.limit;
-		var skip = options.skip;
-		var order = options.sort;
-		////////////////////////////////////////////////
+		
 		var dataKey = this.config.dataPrefix + collectionName;
 		var data = this.db.get(dataKey);
 
-		// Query result set using criteria
-		var resultIndices = [];
-		_.each(data, function(row, index) {
-			my.log.verbose('matching row/index', {
-				row: row,
-				index: index
-			});
-			my.log.verbose("against", criteria);
-			my.log.verbose("with outcome", matchSet(row, criteria));
-
-			if(matchSet(row, criteria)) resultIndices.push(index);
-		});
-		this.log.verbose("filtered indices::", resultIndices, 'criteria', criteria);
+		// Query result set using options
+		var resultIndices = getMatchIndices(data,options);
 
 		// Update value(s)
 		_.each(resultIndices, function(index) {
@@ -237,20 +219,15 @@ var adapter = {
 	destroy: function(collectionName, options, cb) {
 		this.log.verbose(" DESTROYING :: " + collectionName, options);
 
-		var criteria = options.where;
-
-		////////////////////////////////////////////////
-		// TODO: Make this shit actually work
-		var limit = options.limit;
-		var skip = options.skip;
-		var order = options.sort;
-		////////////////////////////////////////////////
 		var dataKey = this.config.dataPrefix + collectionName;
 		var data = this.db.get(dataKey);
 
-		// Query result set using criteria
-		data = _.reject(data, function(row, index) {
-			return matchSet(row, criteria);
+		// Query result set using options
+		var resultIndices = getMatchIndices(data,options);
+
+		// Remove value(s)
+		_.each(resultIndices, function(index) {
+			data.splice(index,1);
 		});
 
 		// Replace data collection and go back
@@ -303,14 +280,28 @@ function applyFilter(data, criteria) {
 	}
 }
 
-function applyLimit(data, limit) {
-	return data;
-}
-function applySkip(data, skip) {
-	return data;
-}
 function applySort(data, sort) {
-	return data;
+	if (!sort || !data) return data;
+	else {
+		// ASCENDING by default
+		// var result = _.sortBy(data,sort);
+		//TODO
+		return data;
+	}
+}
+// Ignore the first *skip* models
+function applySkip(data, skip) {
+	if (!skip || !data) return data;
+	else {
+		return _.rest(data,skip);
+	}
+}
+
+function applyLimit(data, limit) {
+	if (!limit || !data) return data;
+	else {
+		return _.first(data,limit);
+	}
 }
 
 // Find models in data which satisfy the options criteria, 
