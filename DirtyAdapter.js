@@ -283,42 +283,25 @@ function applyFilter(data, criteria) {
 function applySort(data, sort) {
 	if (!sort || !data) return data;
 	else {
-		if (_.isString(sort)) {
+		var sortedData = _.clone(data);
 
-			// Split string into attr and sortDirection parts (default to 'asc')
-			var parts = _.str.words(sort);
-			parts[1] = parts[1] ? parts[1].toLowerCase() : 'asc';
-			
-			if (parts.length !== 2 || (parts[1] !== 'asc' && parts[1] !== 'desc')) {
-				throw new Error ('Invalid sort criteria :: '+sort);
-			}
+		// Sort through each sort attribute criteria
+		_.each(sort,function (direction, attrName) {
 
-			sort = {};
-			sort[parts[0]] = (parts[1] === 'asc') ? 1 : -1;
-		}
+			var comparator;
 
-		if (_.isObject(sort)) {
-			// TODO: support multiple sort attrs
-			// TODO: support descending sorts
-			var sortedData = _.clone(data);
-			_.each(sort,function (direction, attrName) {
-				// Basic MongoDB-style numeric sort direction
-				if (direction === 1 || direction === -1) direction = function (model) {return model[attrName];};
+			// Basic MongoDB-style numeric sort direction
+			if (direction === 1 || direction === -1) comparator = function (model) {return model[attrName];};
+			else comparator = comparator;
 
-				// User provided explicit comparator function
-				else if (_.isFunction (direction)) { /* do nothing */ }
+			// Actually sort data
+			sortedData = _.sortBy(sortedData,comparator);
 
-				// Otherwise complain
-				else throw new Error ('Invalid sort criteria for '+attrName+' :: '+direction);
 
-				// Actually sort data
-				sortedData = _.sortBy(sortedData,direction);
-
-				// Reverse it if necessary (if -1 direction specified) 
-				if (direction === -1) sortedData.reverse();
-			});
-			return sortedData;
-		}
+			// Reverse it if necessary (if -1 direction specified)
+			if (direction === -1) sortedData.reverse();
+		});
+		return sortedData;
 	}
 }
 // Ignore the first *skip* models
