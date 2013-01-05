@@ -283,11 +283,42 @@ function applyFilter(data, criteria) {
 function applySort(data, sort) {
 	if (!sort || !data) return data;
 	else {
-		// TODO: support multiple sort attrs
-		// TODO: support descending sorts
-		// ASCENDING by default
-		var term = _.isObject(sort) ? sort[_.keys(sort)[0]] : sort;
-		return _.sortBy(data,term);
+		if (_.isString(sort)) {
+
+			// Split string into attr and sortDirection parts (default to 'asc')
+			var parts = _.str.words(sort);
+			parts[1] = parts[1] ? parts[1].toLowerCase() : 'asc';
+			
+			if (parts.length !== 2 || (parts[1] !== 'asc' && parts[1] !== 'desc')) {
+				throw new Error ('Invalid sort criteria :: '+sort);
+			}
+
+			sort = {};
+			sort[parts[0]] = (parts[1] === 'asc') ? 1 : -1;
+		}
+
+		if (_.isObject(sort)) {
+			// TODO: support multiple sort attrs
+			// TODO: support descending sorts
+			var sortedData = _.clone(data);
+			_.each(sort,function (direction, attrName) {
+				// Basic MongoDB-style numeric sort direction
+				if (direction === 1 || direction === -1) direction = function (model) {return model[attrName];};
+
+				// User provided explicit comparator function
+				else if (_.isFunction (direction)) { /* do nothing */ }
+
+				// Otherwise complain
+				else throw new Error ('Invalid sort criteria for '+attrName+' :: '+direction);
+
+				// Actually sort data
+				sortedData = _.sortBy(sortedData,direction);
+
+				// Reverse it if necessary (if -1 direction specified) 
+				if (direction === -1) sortedData.reverse();
+			});
+			return sortedData;
+		}
 	}
 }
 // Ignore the first *skip* models
@@ -322,7 +353,13 @@ function getMatchIndices(data, options) {
 	matches = applySort(matches, options.sort);
 	matches = applySkip(matches, options.skip);
 	matches = applyLimit(matches, options.limit);
-	return _.pluck(matches,origIndexKey);
+	var matchIndices = _.pluck(matches,origIndexKey);
+
+	// Remove original index key which is keeping track of the index in the unsorted data
+	_.each(data, function (datum) {
+		delete datum[origIndexKey];
+	});
+	return matchIndices;
 }
 
 
