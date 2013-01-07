@@ -27,6 +27,7 @@
     "async": "~0.1.22",
     "dirty": "~0.9.6",
     "underscore": "~1.4.3",
-    "fs-extra": "~0.3.2"
+    "fs-extra": "~0.3.2",
+    "underscore.string": "~2.3.1"
   }
 }
