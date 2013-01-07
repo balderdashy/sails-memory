@@ -202,16 +202,22 @@ var adapter = {
 		var data = this.db.get(dataKey);
 
 		// Query result set using options
-		var resultIndices = getMatchIndices(data,options);
+		var matchIndices = getMatchIndices(data,options);
 
-		// Update value(s)
-		_.each(resultIndices, function(index) {
+		// Update model(s)
+		_.each(matchIndices, function(index) {
 			data[index] = _.extend(data[index], values);
+		});
+
+		// Get result set for response
+		var resultSet = [];
+		_.each(matchIndices,function (matchIndex) {
+			resultSet.push(data[matchIndex]);
 		});
 
 		// Replace data collection and go back
 		this.db.set(dataKey, data, function(err) {
-			cb(err, values);
+			cb(err, resultSet);
 		});
 	},
 
@@ -223,16 +229,22 @@ var adapter = {
 		var data = this.db.get(dataKey);
 
 		// Query result set using options
-		var resultIndices = getMatchIndices(data,options);
+		var matchIndices = getMatchIndices(data,options);
 
-		// Remove value(s)
-		_.each(resultIndices, function(index) {
+		// Remove model(s)
+		_.each(matchIndices, function(index) {
 			data.splice(index,1);
+		});
+
+		// Get result set for response
+		var resultSet = [];
+		_.each(matchIndices,function (matchIndex) {
+			resultSet.push(data[matchIndex]);
 		});
 
 		// Replace data collection and go back
 		this.db.set(dataKey, data, function(err) {
-			cb(err);
+			cb(err, resultSet);
 		});
 	},
 
