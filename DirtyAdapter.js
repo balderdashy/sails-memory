@@ -77,8 +77,6 @@ var adapter = {
 		// Grab current auto-increment value from database and populate it in-memory
 		var schema = this.db.get(this.config.schemaPrefix + collectionName);
 		statusDb[collectionName] = (schema && schema.autoIncrement) ? schema : {autoIncrement: 1};
-		
-		console.log(collectionName+" :: READ AI :: ",statusDb[collectionName].autoIncrement);
 
 		self.getAutoIncrementAttribute(collectionName, function (err,aiAttr) {
 			// Check that the resurrected auto-increment value is valid
