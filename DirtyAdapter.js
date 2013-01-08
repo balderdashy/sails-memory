@@ -72,10 +72,57 @@ var adapter = {
 
 	// Logic to handle the (re)instantiation of collections
 	initializeCollection: function(collectionName, cb) {
+		var self = this;
+
 		// Grab current auto-increment value from database and populate it in-memory
 		var schema = this.db.get(this.config.schemaPrefix + collectionName);
 		statusDb[collectionName] = (schema && schema.autoIncrement) ? schema : {autoIncrement: 1};
-		cb();
+		
+		console.log(collectionName+" :: READ AI :: ",statusDb[collectionName].autoIncrement);
+
+		self.getAutoIncrementAttribute(collectionName, function (err,aiAttr) {
+			// Check that the resurrected auto-increment value is valid
+			self.find(collectionName, {
+				where: {
+					id: statusDb[collectionName].autoIncrement
+				}
+			}, function (err, models) {
+				if (err) return cb(err);
+
+				// If that model already exists, warn the user and generate the next-best possible auto-increment key
+				if (models && models.length) {
+
+					// Find max
+					self.find(collectionName, {}, function (err,models) {
+						var autoIncrement = _.max(models,function (model){
+							return model[aiAttr];
+						});
+						autoIncrement = autoIncrement && autoIncrement[aiAttr] || 0;
+						autoIncrement++;
+
+						self.log.warn("On-disk auto-increment ID corrupt, using: "+autoIncrement+" on attribute:",aiAttr);
+						statusDb[collectionName].autoIncrement = autoIncrement;
+						cb();
+					});
+				}
+				else cb();
+			});
+		});
+	},
+
+	// find this collection's auto-increment field and return its name
+	getAutoIncrementAttribute: function (collectionName, cb) {
+		this.describe(collectionName, function (err,attributes) {
+			var attrName, done=false;
+			_.each(attributes, function(attribute, aname) {
+				if(!done && _.isObject(attribute) && attribute.autoIncrement) {
+					attrName = aname;
+					done = true;
+				}
+			});
+
+			cb(null, attrName);
+		});
 	},
 
 	// Logic to handle flushing collection data to disk before the adapter shuts down
@@ -83,12 +130,13 @@ var adapter = {
 		var my = this;
 		
 		// Always go ahead and write the new auto-increment to disc, even though it will be wrong sometimes
-		// (this is done so that the auto-increment counter can be "ressurected" when the adapter is restarted from disk)
+		// (this is done so that the auto-increment counter can be "resurrected" when the adapter is restarted from disk)
 		var schema = _.extend(this.db.get(this.config.schemaPrefix + collectionName),{
 			autoIncrement: statusDb[collectionName].autoIncrement
 		});
+		this.log.info("Waterline saving "+collectionName+" collection...");
 		this.db.set(this.config.schemaPrefix + collectionName, schema, function (err) {
-			// my.db = null;
+			my.db = null;
 			cb && cb(err);
 		});
 	},
@@ -231,20 +279,16 @@ var adapter = {
 		// Query result set using options
 		var matchIndices = getMatchIndices(data,options);
 
+		
 		// Remove model(s)
-		_.each(matchIndices, function(index) {
-			data.splice(index,1);
+		// Get result set of only the models that remain
+		data = _.reject(data, function(model,index) {
+			return _.contains(matchIndices, index);
 		});
 
-		// Get result set for response
-		var resultSet = [];
-		_.each(matchIndices,function (matchIndex) {
-			resultSet.push(data[matchIndex]);
-		});
-
-		// Replace data collection and go back
+		// Replace data collection and respond with what's left
 		this.db.set(dataKey, data, function(err) {
-			cb(err, resultSet);
+			cb(err);
 		});
 	},
 
@@ -361,8 +405,9 @@ function getMatchIndices(data, options) {
 // Match a model against each criterion in a criteria query
 
 function matchSet(model, criteria) {
-	// Null WHERE query always matches everything
-	if(!criteria) return true;
+
+	// Null or {} WHERE query always matches everything
+	if(!criteria || _.isEqual(criteria,{})) return true;
 
 	// By default, treat entries as AND
 	return _.all(criteria,function(criterion,key) {
