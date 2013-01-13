@@ -51,7 +51,6 @@ function DirtyAdapter () {
 			if(! this.config.inMemory) {
 				// Check that dbFilePath file exists and build tree as neessary
 				require('fs-extra').touch(this.config.dbFilePath, function(err) {
-					console.log("!");
 					if(err) return cb(err);
 					my.db = new(dirty.Dirty)(my.config.dbFilePath);
 
@@ -63,9 +62,6 @@ function DirtyAdapter () {
 			}
 
 			function afterwards() {
-
-				// Make logger easily accessible
-				my.log = my.config.log;
 
 				// Trigger callback with no error
 				my.db.on('load', function() {
