@@ -108,21 +108,6 @@ var adapter = {
 		});
 	},
 
-	// find this collection's auto-increment field and return its name
-	getAutoIncrementAttribute: function (collectionName, cb) {
-		this.describe(collectionName, function (err,attributes) {
-			var attrName, done=false;
-			_.each(attributes, function(attribute, aname) {
-				if(!done && _.isObject(attribute) && attribute.autoIncrement) {
-					attrName = aname;
-					done = true;
-				}
-			});
-
-			cb(null, attrName);
-		});
-	},
-
 	// Logic to handle flushing collection data to disk before the adapter shuts down
 	teardownCollection: function(collectionName, cb) {
 		var my = this;
@@ -294,7 +279,7 @@ var adapter = {
 
 	// Identity is here to facilitate unit testing
 	// (this is optional and normally automatically populated based on filename)
-	identity: 'dirty'
+	identity: 'waterline-dirty'
 };
 
 
