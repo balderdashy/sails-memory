@@ -418,8 +418,16 @@ function DirtyAdapter () {
 	function matchLike(model, criteria) {
 		for(var key in criteria) {
 
+			var matchString = criteria[key];
+
+			// Handle escaped percent (%) signs
+			matchString = matchString.replace(/%%%/g, '%');
+
+			// Replace SQL % match notation with something the ECMA regex parser can handle
+			matchString = matchString.replace(/[^%]%[^%]/g, '.*');
+
 			// Check that criterion attribute and is at least similar to the model's value for that attr
-			if(!model[key] || !_.str.include(model[key],criteria[key])) {
+			if(!model[key] || !model[key].match(matchString)) {
 				return false;
 			}
 		}
