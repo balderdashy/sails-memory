@@ -1,3 +1,5 @@
+![image_squidhome@2x.png](http://i.imgur.com/RIvu9.png) 
+
 # DirtyAdapter
 
 Waterline adapter for the great felixge's Dirty database.  (https://github.com/felixge/node-dirty)
