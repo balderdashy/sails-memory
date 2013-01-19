@@ -420,14 +420,34 @@ function DirtyAdapter () {
 
 			var matchString = criteria[key];
 
-			// Handle escaped percent (%) signs
-			matchString = matchString.replace(/%%%/g, '%');
+			if (_.isRegExp(matchString)) {
+				// awesome
+			}
+			else if (_.isString(matchString)) {
+				// Handle escaped percent (%) signs
+				matchString = matchString.replace(/%%%/g, '%');
 
-			// Replace SQL % match notation with something the ECMA regex parser can handle
-			matchString = matchString.replace(/[^%]%[^%]/g, '.*');
+				// Replace SQL % match notation with something the ECMA regex parser can handle
+				matchString = matchString.replace(/([^%]*)%([^%]*)/g, '$1.*$2');
+				
+				matchString = new RegExp(matchString);
+			}
+			// Unexpected match string!
+			else throw new Error("Unexpected match string: "+matchString+ " Please use a regexp or string.");
+
+
+			// Deal with non-strings by creating index
+			var index = model[key];
+			if (_.isNumber(index)) index = ""+index;
+			else if (_.isBoolean(index)) index = index ? "true" : "false";
+			else if (!_.isString(index)) {
+				// Ignore objects, arrays, null, and undefined data for now
+				// (and maybe forever)
+				return false;
+			}
 
 			// Check that criterion attribute and is at least similar to the model's value for that attr
-			if(!model[key] || !model[key].match(matchString)) {
+			if(!index.match(matchString)) {
 				return false;
 			}
 		}
