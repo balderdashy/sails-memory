@@ -430,11 +430,18 @@ function DirtyAdapter () {
 				// Replace SQL % match notation with something the ECMA regex parser can handle
 				matchString = matchString.replace(/([^%]*)%([^%]*)/g, '$1.*$2');
 				
-				matchString = new RegExp(matchString);
+				// Case insensitive by default
+				var modifiers = 'i';
+				// TODO: make this overridable
+
+				matchString = new RegExp('^'+matchString+'$',modifiers);
 			}
 			// Unexpected match string!
-			else throw new Error("Unexpected match string: "+matchString+ " Please use a regexp or string.");
-
+			else {
+				console.error('matchString:');
+				console.error(matchString);
+				throw new Error("Unexpected match string: "+matchString+ " Please use a regexp or string.");
+			}
 
 			// Deal with non-strings by creating index
 			var index = model[key];
