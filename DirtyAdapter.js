@@ -294,13 +294,23 @@ function DirtyAdapter () {
 		// Determine the attribute names which will be included in the created object
 		var attrNames = _.keys(_.extend({}, attributes, values));
 
-		// increment AI fields in values set
-		_.each(attrNames, function(attrName) {
-			if(_.isObject(attributes[attrName]) && attributes[attrName].autoIncrement) {
-				values[attrName] = statusDb[collectionName].autoIncrement;
 
-				// Then, increment the auto-increment counter for this collection
-				statusDb[collectionName].autoIncrement++;
+		_.each(attrNames, function(attrName) {
+			// But only if the given auto-increment value 
+			// was NOT actually specified in the value set, 
+			if(_.isObject(attributes[attrName]) && attributes[attrName].autoIncrement) {
+				
+				if (!values[attrName]) {
+
+					console.log("AI****",values[attrName], attrName);
+					
+					// increment AI fields in values set
+					values[attrName] = statusDb[collectionName].autoIncrement;
+
+					// Increment the auto-increment counter for this collection
+					statusDb[collectionName].autoIncrement++;
+
+				}
 			}
 		});
 
