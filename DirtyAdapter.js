@@ -301,8 +301,6 @@ function DirtyAdapter () {
 			if(_.isObject(attributes[attrName]) && attributes[attrName].autoIncrement) {
 				
 				if (!values[attrName]) {
-
-					console.log("AI****",values[attrName], attrName);
 					
 					// increment AI fields in values set
 					values[attrName] = statusDb[collectionName].autoIncrement;
