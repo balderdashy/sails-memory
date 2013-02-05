@@ -1,3 +1,6 @@
+var _ = require('underscore');
+_.str = require('underscore.string');
+
 // Find models in data which satisfy the options criteria, 
 // then return their indices in order
 module.exports = function getMatchIndices(data, options) {
@@ -24,7 +27,7 @@ module.exports = function getMatchIndices(data, options) {
 	return matchIndices;
 };
 
-// Run criteria query against data aset
+// Run criteria query against data set
 function applyFilter(data, criteria) {
 	if(!data) return data;
 	else {
@@ -79,14 +82,14 @@ function applyLimit(data, limit) {
 
 // Match a model against each criterion in a criteria query
 
-function matchSet(model, criteria) {
+function matchSet(model, criteria, parentKey) {
 
 	// Null or {} WHERE query always matches everything
 	if(!criteria || _.isEqual(criteria, {})) return true;
 
 	// By default, treat entries as AND
 	return _.all(criteria, function(criterion, key) {
-		return matchItem(model, key, criterion);
+		return matchItem(model, key, criterion, parentKey);
 	});
 }
 
@@ -155,9 +158,42 @@ function matchNot(model, criteria) {
 	return !matchSet(model, criteria);
 }
 
-function matchItem(model, key, criterion) {
+function matchItem(model, key, criterion, parentKey) {
 
-	if(key.toLowerCase() === 'or') {
+	// Handle special attr query
+	if (parentKey) {
+
+		if (key.toLowerCase() === 'not' || key === '!') {
+			return matchLiteral(model,parentKey,criterion, function (a,b) {
+				return !_.isEqual(a,b);
+			});
+		}
+		else if (key === 'greaterThan' || key === '>') {
+			return matchLiteral(model,parentKey,criterion, function (a,b) {
+				return a > b;
+			});
+		}
+		else if (key === 'greaterThanOrEqual' || key === '>=')  {
+			return matchLiteral(model,parentKey,criterion, function (a,b) {
+				return a >= b;
+			});
+		}
+		else if (key === 'lessThan' || key === '<')  {
+			return matchLiteral(model,parentKey,criterion, function (a,b) {
+				return a < b;
+			});
+		}
+		else if (key === 'lessThanOrEqual' || key === '<=')  {
+			return matchLiteral(model,parentKey,criterion, function (a,b) {
+				return a <= b;
+			});
+		}
+		else if (key === 'startsWith') return matchLiteral(model,parentKey,criterion, _.str.startsWith);
+		else if (key === 'endsWith') return matchLiteral(model,parentKey,criterion, _.str.endsWith);
+		else if (key === 'contains') return matchLiteral(model,parentKey,criterion, _.str.contains);
+		else throw new Error ('Invalid query syntax!');
+	}
+	else if(key.toLowerCase() === 'or') {
 		return matchOr(model, criterion);
 	} else if(key.toLowerCase() === 'not') {
 		return matchNot(model, criterion);
@@ -172,15 +208,41 @@ function matchItem(model, key, criterion) {
 			return model[key] === val;
 		});
 	}
+
+	// Special attr query
+	else if (_.isObject(criterion) && validSubAttrCriteria(criterion)) {
+		// Attribute is being checked in a specific way
+		return matchSet(model, criterion, key);
+	}
+
+	// Otherwise, try a literal match
+	else return matchLiteral(model,key,criterion, _.isEqual);
+	
+}
+
+// Return whether this criteria is valid as an object inside of an attribute
+function validSubAttrCriteria(c) {
+	return _.isObject(c) && (
+		c.not || c.greaterThan || c.lessThan || 
+		c.greaterThanOrEqual || c.lessThanOrEqual ||
+		c['<'] || c['<='] || c['!'] || c['>'] || c['>='] ||
+		c.startsWith || c.endsWith || c.contains
+	);
+}
+
+
+// matchFn => the function that will be run to check for a match between the two literals
+function matchLiteral(model, key, criterion, matchFn) {
 	// ensure the key attr exists in model
-	else if(_.isUndefined(model[key])) {
+	if(_.isUndefined(model[key])) {
 		return false;
 	}
 
 	// ensure the key attr matches model attr in model
-	else if((model[key] !== criterion)) {
+	else if((! matchFn(model[key],criterion))) {
 		return false;
 	}
+
 	// Otherwise this is a match
 	return true;
 }
