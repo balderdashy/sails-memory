@@ -79,7 +79,10 @@ function DirtyAdapter () {
 			var self = this;
 
 			// Grab current auto-increment value from database and populate it in-memory
+			// (it's ok if it doesn't exist-- it will only exist if Dirty persisting to disk 
+			// and the collection has been initialized at least once)
 			var schema = this.db.get(this.config.schemaPrefix + collectionName);
+
 			statusDb[collectionName] = (schema && schema.autoIncrement) ? schema : {autoIncrement: 1};
 
 			self.getAutoIncrementAttribute(collectionName, function (err,aiAttr) {
@@ -118,10 +121,14 @@ function DirtyAdapter () {
 			
 			// Always go ahead and write the new auto-increment to disc, even though it will be wrong sometimes
 			// (this is done so that the auto-increment counter can be "resurrected" when the adapter is restarted from disk)
-			var schema = _.extend(this.db.get(this.config.schemaPrefix + collectionName),{
+			var schema = this.db.get(this.config.schemaPrefix + collectionName);
+			if (!schema) return cb(badSchemaError(collectionName, this.config.schemaPrefix));
+
+			schema = _.extend(schema,{
 				autoIncrement: statusDb[collectionName].autoIncrement
 			});
-			this.log.info("Waterline saving "+collectionName+" collection...");
+
+			this.log.verbose("Waterline saving "+collectionName+" collection...");
 			this.db.set(this.config.schemaPrefix + collectionName, schema, function (err) {
 				my.db = null;
 				cb && cb(err);
@@ -133,7 +140,11 @@ function DirtyAdapter () {
 		// (contains attributes and autoIncrement value)
 		describe: function(collectionName, cb) {	
 			this.log.verbose(" DESCRIBING :: " + collectionName);
+			
+			// (it's ok if schema doesn't exist-- it will only exist if Dirty persisting to disk 
+			// and the collection has been initialized at least once)
 			var schema = this.db.get(this.config.schemaPrefix + collectionName);
+
 			var attributes = schema && schema.attributes;
 			return cb(null, attributes);
 		},
@@ -185,6 +196,7 @@ function DirtyAdapter () {
 
 			// Lookup schema & status so we know all of the attribute names and the current auto-increment value
 			var schema = this.db.get(this.config.schemaPrefix + collectionName);
+			if (!schema) return cb(badSchemaError(collectionName, this.config.schemaPrefix));
 
 			// Auto increment fields that need it
 			doAutoIncrement(collectionName, schema.attributes, values, this, function (err, values) {
@@ -331,3 +343,7 @@ module.exports = function (options) {
 	adapter.config = _.extend(adapter.config, options || {});
 	return adapter;
 };
+
+function badSchemaError(collectionName, schemaPrefix) {
+	return new Error('Cannot get schema from Dirty for collection: ' + collectionName + ' using schema prefix: '+schemaPrefix);
+}
