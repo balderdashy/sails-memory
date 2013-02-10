@@ -30,7 +30,7 @@ module.exports = function () {
 	var uuid = require('node-uuid');
 
 
-	// Maintain connections to files and memory collection
+	// Maintain connections to open file and memory stores
 	var connections = {	};
 
 	// String to precede key name for schema defininitions
