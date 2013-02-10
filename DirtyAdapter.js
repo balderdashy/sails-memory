@@ -119,23 +119,24 @@ module.exports = function () {
 			}
 		},
 
-		// Logic to handle flushing collection data to disk before the adapter shuts down
-		teardownCollection: function(collectionName, cb) {
-			var my = this;
-			
-			// Always go ahead and write the new auto-increment to disc, even though it will be wrong sometimes
-			// (this is done so that the auto-increment counter can be "resurrected" when the adapter is restarted from disk)
-			var schema = connections[collectionName].db.get(schemaPrefix + collectionName);
-			if (!schema) return cb(badSchemaError(collectionName, schemaPrefix));
+		// Flush data to disk before the adapter shuts down
+		teardown: function(cb) {
+			async.forEach(_.keys(connections), function (collectionName, cb) {
 
-			schema = _.extend(schema,{
-				autoIncrement: statusDb[collectionName].autoIncrement
-			});
+				// Always go ahead and write the new auto-increment to disc, even though it will be wrong sometimes
+				// (this is done so that the auto-increment counter can be "resurrected" when the adapter is restarted from disk)
+				var schema = connections[collectionName].db.get(schemaPrefix + collectionName);
+				if (!schema) return cb(badSchemaError(collectionName, schemaPrefix));
 
-			connections[collectionName].db.set(schemaPrefix + collectionName, schema, function (err) {
-				connections[collectionName].db = null;
-				cb && cb(err);
-			});
+				schema = _.extend(schema,{
+					autoIncrement: statusDb[collectionName].autoIncrement
+				});
+
+				connections[collectionName].db.set(schemaPrefix + collectionName, schema, function (err) {
+					connections[collectionName].db = null;
+					cb && cb(err);
+				});
+			}, cb);
 		},
 
 
