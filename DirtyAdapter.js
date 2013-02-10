@@ -153,20 +153,22 @@ module.exports = function () {
 		},
 
 		// Create a new collection
-		define: function(collectionName, attributes, cb) {
+		define: function(collectionName, definition, cb) {
 			var self = this;
 
-			var schema = {
-				attributes: _.clone(attributes),
-				autoIncrement: 1
-			};
+			definition = _.extend({
 
-			// Write schema and status objects
-			return connections[collectionName].db.set(schemaPrefix + collectionName, schema, function(err) {
+				// Reset autoIncrement counter
+				autoIncrement: 1
+				
+			}, definition);
+
+			// Write schema objects
+			return connections[collectionName].db.set(schemaPrefix + collectionName, definition, function(err) {
 				if(err) return cb(err);
 
-				// Set in-memory schema for this collection
-				statusDb[collectionName] = schema;
+				// Set in-memory definition for this collection
+				statusDb[collectionName] = definition;
 				cb();
 			});
 		},
@@ -178,8 +180,6 @@ module.exports = function () {
 				return connections[collectionName].db.rm(schemaPrefix + collectionName, cb);
 			});
 		},
-
-		// No alter necessary-- use the default in waterline core
 
 
 		// Create one or more new models in the collection
