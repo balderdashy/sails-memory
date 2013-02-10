@@ -14,7 +14,7 @@ _.str = require('underscore.string');
 var getMatchIndices = require('./criteria.js');
 
 
-function DirtyAdapter () {
+module.exports = function () {
 
 
 	// Poor man's auto-increment
@@ -108,7 +108,6 @@ function DirtyAdapter () {
 								autoIncrement = autoIncrement && autoIncrement[aiAttr] || 0;
 								autoIncrement++;
 
-								// self.log.warn("On-disk auto-increment ID corrupt, using: "+autoIncrement+" on attribute:",aiAttr);
 								statusDb[collectionName].autoIncrement = autoIncrement;
 								cb();
 							});
@@ -133,7 +132,6 @@ function DirtyAdapter () {
 				autoIncrement: statusDb[collectionName].autoIncrement
 			});
 
-			// this.log.verbose("Waterline saving "+collectionName+" collection...");
 			connections[collectionName].db.set(schemaPrefix + collectionName, schema, function (err) {
 				connections[collectionName].db = null;
 				cb && cb(err);
@@ -144,7 +142,6 @@ function DirtyAdapter () {
 		// Fetch the schema for a collection
 		// (contains attributes and autoIncrement value)
 		describe: function(collectionName, cb) {	
-			// this.log.verbose(" DESCRIBING :: " + collectionName);
 			
 			// (it's ok if schema doesn't exist-- it will only exist if Dirty persisting to disk 
 			// and the collection has been initialized at least once)
@@ -156,9 +153,6 @@ function DirtyAdapter () {
 
 		// Create a new collection
 		define: function(collectionName, attributes, cb) {
-			// this.log.verbose(" DEFINING " + collectionName, {
-			// 	as: schema
-			// });
 			var self = this;
 
 			var schema = {
@@ -178,8 +172,6 @@ function DirtyAdapter () {
 
 		// Drop an existing collection
 		drop: function(collectionName, cb) {
-			var self = this;
-			// self.log.verbose(" DROPPING " + collectionName);
 			return connections[collectionName].db.rm(dataPrefix + collectionName, function(err) {
 				if(err) return cb("Could not drop collection!");
 				return connections[collectionName].db.rm(schemaPrefix + collectionName, cb);
@@ -189,10 +181,8 @@ function DirtyAdapter () {
 		// No alter necessary-- use the default in waterline core
 
 
-
 		// Create one or more new models in the collection
 		create: function(collectionName, values, cb) {
-			// this.log.verbose(" CREATING :: " + collectionName, values);
 			values = _.clone(values) || {};
 			var dataKey = dataPrefix + collectionName;
 			var data = connections[collectionName].db.get(dataKey);
@@ -243,10 +233,6 @@ function DirtyAdapter () {
 
 		// Update one or more models in the collection
 		update: function(collectionName, options, values, cb) {
-			// this.log.verbose(" UPDATING :: " + collectionName, {
-			// 	options: options,
-			// 	values: values
-			// });
 			var my = this;
 
 			
@@ -275,8 +261,6 @@ function DirtyAdapter () {
 
 		// Delete one or more models from the collection
 		destroy: function(collectionName, options, cb) {
-			// this.log.verbose(" DESTROYING :: " + collectionName, options);
-
 			var dataKey = dataPrefix + collectionName;
 			var data = connections[collectionName].db.get(dataKey);
 
@@ -372,17 +356,10 @@ function DirtyAdapter () {
 		return cb(null,values);
 	}
 
+	function badSchemaError(collectionName, schemaPrefix) {
+		return new Error('Cannot get schema from Dirty for collection: ' + collectionName + ' using schema prefix: '+schemaPrefix);
+	}
+
 
 	return adapter;
-}
-
-// Public API
-//	* NOTE: The public API for adapters is a function 
-//	* It returns the instantiated adapter
-module.exports = function () {
-	return new DirtyAdapter();
 };
-
-function badSchemaError(collectionName, schemaPrefix) {
-	return new Error('Cannot get schema from Dirty for collection: ' + collectionName + ' using schema prefix: '+schemaPrefix);
-}
