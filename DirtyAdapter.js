@@ -42,6 +42,9 @@ module.exports = function () {
 
 	var adapter = {
 
+		// Whether this adapter is syncable (yes)
+		syncable: true,
+
 		// Enable transactions by allowing Dirty to create a commitLog
 		commitLog: {
 			identity: '__default_dirty_transaction',
