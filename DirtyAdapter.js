@@ -43,7 +43,10 @@ module.exports = function () {
 	var adapter = {
 
 		// Enable transactions by allowing Dirty to create a commitLog
-		commitLog: true,
+		commitLog: {
+			identity: '__default_dirty_transaction',
+			adapter: 'waterline-dirty'
+		},
 
 		// Default configuration for collections
 		defaults: {
@@ -63,12 +66,17 @@ module.exports = function () {
 
 			// If the configuration in this collection corresponds 
 			// with an existing connection, reuse it
-			connections[collection.identity] = _.find(connections, function (connection, name) {
-				return connection.inMemory === collection.inMemory &&
-						connection.filePath === collection.filePath;
+			var foundConnection = _.find(connections, function (connection, name) {
+				// console.log(collectionName,collection.filePath, collection.inMemory,":::", name,connection);
+				// console.log("Connect:",name,connection, "Collcetion",collection.identity, collection.inMemory,collection.filePath);
+				return connection && (connection.inMemory === collection.inMemory) ||
+							(connection.filePath === collection.filePath);
 			});
 
-			if (connections[collection.identity]) afterwards();
+			if (foundConnection) {
+				connections[collection.identity] = foundConnection;
+				afterwards();
+			}
 
 			// Otherwise initialize for the first time
 			else {
