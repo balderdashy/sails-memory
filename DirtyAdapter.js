@@ -247,7 +247,6 @@ module.exports = function () {
 		update: function(collectionName, options, values, cb) {
 			var my = this;
 
-			
 			var dataKey = dataPrefix + collectionName;
 			var data = connections[collectionName].db.get(dataKey);
 

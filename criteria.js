@@ -233,6 +233,11 @@ function validSubAttrCriteria(c) {
 
 // matchFn => the function that will be run to check for a match between the two literals
 function matchLiteral(model, key, criterion, matchFn) {
+	// If the criterion is a parsable finite number, cast it
+	if(Math.pow(+criterion, 2) > 0) {
+		criterion = +criterion;
+	}
+
 	// ensure the key attr exists in model
 	if(_.isUndefined(model[key])) {
 		return false;
