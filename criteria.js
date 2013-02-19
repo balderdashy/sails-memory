@@ -163,28 +163,57 @@ function matchItem(model, key, criterion, parentKey) {
 	// Handle special attr query
 	if (parentKey) {
 
-		if (key.toLowerCase() === 'not' || key === '!') {
+		if (key.toLowerCase() === 'equals' || key === '=' || key.toLowerCase() === 'equal') {
 			return matchLiteral(model,parentKey,criterion, function (a,b) {
+				if (_.isString(a) && _.isString(b)) {
+					a = a.toLowerCase();
+					b = b.toLowerCase();
+				}
+				return _.isEqual(a,b);
+			});
+		}
+		else if (key.toLowerCase() === 'not' || key === '!') {
+			return matchLiteral(model,parentKey,criterion, function (a,b) {
+				if (_.isString(a) && _.isString(b)) {
+					a = a.toLowerCase();
+					b = b.toLowerCase();
+				}
 				return !_.isEqual(a,b);
 			});
 		}
 		else if (key === 'greaterThan' || key === '>') {
 			return matchLiteral(model,parentKey,criterion, function (a,b) {
+				if (_.isString(a) && _.isString(b)) {
+					a = a.toLowerCase();
+					b = b.toLowerCase();
+				}
 				return a > b;
 			});
 		}
 		else if (key === 'greaterThanOrEqual' || key === '>=')  {
 			return matchLiteral(model,parentKey,criterion, function (a,b) {
+				if (_.isString(a) && _.isString(b)) {
+					a = a.toLowerCase();
+					b = b.toLowerCase();
+				}
 				return a >= b;
 			});
 		}
 		else if (key === 'lessThan' || key === '<')  {
 			return matchLiteral(model,parentKey,criterion, function (a,b) {
+				if (_.isString(a) && _.isString(b)) {
+					a = a.toLowerCase();
+					b = b.toLowerCase();
+				}
 				return a < b;
 			});
 		}
 		else if (key === 'lessThanOrEqual' || key === '<=')  {
 			return matchLiteral(model,parentKey,criterion, function (a,b) {
+				if (_.isString(a) && _.isString(b)) {
+					a = a.toLowerCase();
+					b = b.toLowerCase();
+				}
 				return a <= b;
 			});
 		}
@@ -205,7 +234,14 @@ function matchItem(model, key, criterion, parentKey) {
 	// IN query
 	else if(_.isArray(criterion)) {
 		return _.any(criterion, function(val) {
-			return model[key] === val;
+			var a = model[key];
+			var b = val;
+
+			if (_.isString(a) && _.isString(b)) {
+				a = a.toLowerCase();
+				b = b.toLowerCase();
+			}
+			return _.isEqual(a,b);
 		});
 	}
 
@@ -216,7 +252,13 @@ function matchItem(model, key, criterion, parentKey) {
 	}
 
 	// Otherwise, try a literal match
-	else return matchLiteral(model,key,criterion, _.isEqual);
+	else return matchLiteral(model,key,criterion, function (a,b) {
+		if (_.isString(a) && _.isString(b)) {
+			a = a.toLowerCase();
+			b = b.toLowerCase();
+		}
+		return _.isEqual(a,b);
+	});
 	
 }
 
