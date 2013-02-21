@@ -163,59 +163,23 @@ function matchItem(model, key, criterion, parentKey) {
 	// Handle special attr query
 	if (parentKey) {
 
-		if (key.toLowerCase() === 'equals' || key === '=' || key.toLowerCase() === 'equal') {
-			return matchLiteral(model,parentKey,criterion, function (a,b) {
-				if (_.isString(a) && _.isString(b)) {
-					a = a.toLowerCase();
-					b = b.toLowerCase();
-				}
-				return _.isEqual(a,b);
-			});
+		if (key === 'equals' || key === '=' || key === 'equal') {
+			return matchLiteral(model,parentKey,criterion, comparators['=']);
 		}
-		else if (key.toLowerCase() === 'not' || key === '!') {
-			return matchLiteral(model,parentKey,criterion, function (a,b) {
-				if (_.isString(a) && _.isString(b)) {
-					a = a.toLowerCase();
-					b = b.toLowerCase();
-				}
-				return !_.isEqual(a,b);
-			});
+		else if (key === 'not' || key === '!') {
+			return matchLiteral(model,parentKey,criterion, comparators['!']);
 		}
 		else if (key === 'greaterThan' || key === '>') {
-			return matchLiteral(model,parentKey,criterion, function (a,b) {
-				if (_.isString(a) && _.isString(b)) {
-					a = a.toLowerCase();
-					b = b.toLowerCase();
-				}
-				return a > b;
-			});
+			return matchLiteral(model,parentKey,criterion, comparators['>']);
 		}
 		else if (key === 'greaterThanOrEqual' || key === '>=')  {
-			return matchLiteral(model,parentKey,criterion, function (a,b) {
-				if (_.isString(a) && _.isString(b)) {
-					a = a.toLowerCase();
-					b = b.toLowerCase();
-				}
-				return a >= b;
-			});
+			return matchLiteral(model,parentKey,criterion, comparators['>=']);
 		}
 		else if (key === 'lessThan' || key === '<')  {
-			return matchLiteral(model,parentKey,criterion, function (a,b) {
-				if (_.isString(a) && _.isString(b)) {
-					a = a.toLowerCase();
-					b = b.toLowerCase();
-				}
-				return a < b;
-			});
+			return matchLiteral(model,parentKey,criterion, comparators['<']);
 		}
 		else if (key === 'lessThanOrEqual' || key === '<=')  {
-			return matchLiteral(model,parentKey,criterion, function (a,b) {
-				if (_.isString(a) && _.isString(b)) {
-					a = a.toLowerCase();
-					b = b.toLowerCase();
-				}
-				return a <= b;
-			});
+			return matchLiteral(model,parentKey,criterion, comparators['<=']);
 		}
 		else if (key === 'startsWith') return matchLiteral(model,parentKey,criterion, _.str.startsWith);
 		else if (key === 'endsWith') return matchLiteral(model,parentKey,criterion, _.str.endsWith);
@@ -234,14 +198,7 @@ function matchItem(model, key, criterion, parentKey) {
 	// IN query
 	else if(_.isArray(criterion)) {
 		return _.any(criterion, function(val) {
-			var a = model[key];
-			var b = val;
-
-			if (_.isString(a) && _.isString(b)) {
-				a = a.toLowerCase();
-				b = b.toLowerCase();
-			}
-			return _.isEqual(a,b);
+			return compare.equals(model[key], val);
 		});
 	}
 
@@ -252,14 +209,49 @@ function matchItem(model, key, criterion, parentKey) {
 	}
 
 	// Otherwise, try a literal match
-	else return matchLiteral(model,key,criterion, function (a,b) {
-		if (_.isString(a) && _.isString(b)) {
-			a = a.toLowerCase();
-			b = b.toLowerCase();
-		}
-		return _.isEqual(a,b);
-	});
+	else return matchLiteral(model,key,criterion, compare['=']);
 	
+}
+
+// Comparison fns
+var compare = {
+
+	// Equalish
+	'='	: function (a,b) {
+		var x = normalizeComparison(a,b);
+		return x[0] == x[1];
+	},
+
+	// Not equalish
+	'!'	: function (a,b) {
+		var x = normalizeComparison(a,b);
+		return x[0] != x[1];
+	},
+	'>'	: function (a,b) {
+		var x = normalizeComparison(a,b);
+		return x[0] > x[1];
+	},
+	'>=': function (a,b) {
+		var x = normalizeComparison(a,b);
+		return x[0] >= x[1];
+	},
+	'<'	: function (a,b) {
+		var x = normalizeComparison(a,b);
+		return x[0] < x[1];
+	},
+	'<=': function (a,b) {
+		var x = normalizeComparison(a,b);
+		return x[0] <= x[1];
+	}
+};
+
+// Prepare two values for comparison
+function normalizeComparison(a,b) {
+	if (_.isString(a) && _.isString(b)) {
+		a = a.toLowerCase();
+		b = b.toLowerCase();
+	}
+	return [a,b];
 }
 
 // Return whether this criteria is valid as an object inside of an attribute
@@ -272,12 +264,17 @@ function validSubAttrCriteria(c) {
 	);
 }
 
+// Returns whether this value can be successfully parsed as a finite number
+function isNumbery (value) {
+	return Math.pow(+value, 2) > 0;
+}
 
 // matchFn => the function that will be run to check for a match between the two literals
 function matchLiteral(model, key, criterion, matchFn) {
-	// If the criterion is a parsable finite number, cast it
-	if(Math.pow(+criterion, 2) > 0) {
+	// If the criterion are both parsable finite numbers, cast them
+	if(isNumbery(criterion) && isNumbery(model[key])) {
 		criterion = +criterion;
+		model[key] = +model[key];
 	}
 
 	// ensure the key attr exists in model
