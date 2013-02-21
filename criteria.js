@@ -198,7 +198,7 @@ function matchItem(model, key, criterion, parentKey) {
 	// IN query
 	else if(_.isArray(criterion)) {
 		return _.any(criterion, function(val) {
-			return compare.equals(model[key], val);
+			return compare['='](model[key], val);
 		});
 	}
 
