@@ -239,8 +239,8 @@ module.exports = function () {
 			_.each(matchIndices,function (matchIndex) {
 				resultSet.push(data[matchIndex]);
 			});
-			
-			cb(null, resultSet);
+
+			cb(null, _.clone(resultSet));
 		},
 
 		// Update one or more models in the collection
