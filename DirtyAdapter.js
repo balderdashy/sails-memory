@@ -237,10 +237,10 @@ module.exports = function () {
 
 			var resultSet = [];
 			_.each(matchIndices,function (matchIndex) {
-				resultSet.push(data[matchIndex]);
+				resultSet.push(_.clone(data[matchIndex]));
 			});
 
-			cb(null, _.clone(resultSet));
+			cb(null, resultSet);
 		},
 
 		// Update one or more models in the collection
