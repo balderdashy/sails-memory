@@ -10,12 +10,11 @@ var async = require('async');
 var _ = require('underscore');
 _.str = require('underscore.string');
 
-// Load criteria module
-var getMatchIndices = require('./criteria.js');
 
+module.exports = (function () {
 
-module.exports = function () {
-
+	// Load criteria module
+	var getMatchIndices = require('./criteria.js');
 
 	// Poor man's auto-increment
 	//	* NOTE: In production databases, auto-increment capabilities 
@@ -371,6 +370,6 @@ module.exports = function () {
 		return new Error('Cannot get schema from Dirty for collection: ' + collectionName + ' using schema prefix: '+schemaPrefix);
 	}
 
-
 	return adapter;
-};
+})();
+
