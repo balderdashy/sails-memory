@@ -164,22 +164,22 @@ function matchItem(model, key, criterion, parentKey) {
 	if (parentKey) {
 
 		if (key === 'equals' || key === '=' || key === 'equal') {
-			return matchLiteral(model,parentKey,criterion, comparators['=']);
+			return matchLiteral(model,parentKey,criterion, compare['=']);
 		}
 		else if (key === 'not' || key === '!') {
-			return matchLiteral(model,parentKey,criterion, comparators['!']);
+			return matchLiteral(model,parentKey,criterion, compare['!']);
 		}
 		else if (key === 'greaterThan' || key === '>') {
-			return matchLiteral(model,parentKey,criterion, comparators['>']);
+			return matchLiteral(model,parentKey,criterion, compare['>']);
 		}
 		else if (key === 'greaterThanOrEqual' || key === '>=')  {
-			return matchLiteral(model,parentKey,criterion, comparators['>=']);
+			return matchLiteral(model,parentKey,criterion, compare['>=']);
 		}
 		else if (key === 'lessThan' || key === '<')  {
-			return matchLiteral(model,parentKey,criterion, comparators['<']);
+			return matchLiteral(model,parentKey,criterion, compare['<']);
 		}
 		else if (key === 'lessThanOrEqual' || key === '<=')  {
-			return matchLiteral(model,parentKey,criterion, comparators['<=']);
+			return matchLiteral(model,parentKey,criterion, compare['<=']);
 		}
 		else if (key === 'startsWith') return matchLiteral(model,parentKey,criterion, _.str.startsWith);
 		else if (key === 'endsWith') return matchLiteral(model,parentKey,criterion, _.str.endsWith);
