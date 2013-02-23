@@ -25,7 +25,6 @@ module.exports = (function () {
 
 	// Dependencies
 	var dirty = require('dirty');
-	var parley = require('parley');
 	var uuid = require('node-uuid');
 
 
