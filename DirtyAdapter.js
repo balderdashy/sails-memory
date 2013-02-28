@@ -46,7 +46,7 @@ module.exports = (function () {
 		// Enable transactions by allowing Dirty to create a commitLog
 		commitLog: {
 			identity: '__default_dirty_transaction',
-			adapter: 'waterline-dirty'
+			adapter: 'sails-dirty'
 		},
 
 		// Default configuration for collections
@@ -57,7 +57,7 @@ module.exports = (function () {
 			inMemory: true,
 
 			// File path for disk file output (when NOT in inMemory mode)
-			filePath: './.waterline/dirty.db'
+			filePath: './.tmp/dirty.db'
 		},
 
 		// Logic to handle the (re)instantiation of collections
@@ -293,7 +293,7 @@ module.exports = (function () {
 
 		// Identity is here to facilitate unit testing
 		// (this is optional and normally automatically populated based on filename)
-		identity: 'waterline-dirty'
+		identity: 'sails-dirty'
 	};
 
 

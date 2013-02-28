@@ -5,7 +5,7 @@ _.str = require('underscore.string');
 // then return their indices in order
 module.exports = function getMatchIndices(data, options) {
 	// Remember original indices
-	var origIndexKey = '_waterline_dirty_origindex';
+	var origIndexKey = '__origindex';
 	var matches = _.clone(data);
 	_.each(matches, function(model, index) {
 		// Determine origIndex key
