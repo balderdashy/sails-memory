@@ -1,6 +1,6 @@
 {
   "name": "sails-dirty",
-  "version": "0.5.0",
+  "version": "0.6.0",
   "description": "sails adapter for felixge's node-dirty",
   "main": "DirtyAdapter.js",
   "scripts": {
