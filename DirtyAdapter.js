@@ -241,6 +241,25 @@ module.exports = (function () {
 			cb(null, resultSet);
 		},
 
+		// Stream models from the collection
+		// using where, limit, skip, and order
+		// In where: handle `or`, `and`, and `like` queries
+		stream: function (collectionName, options, stream) {
+			var dataKey = dataPrefix + collectionName;
+			var data = connections[collectionName].db.get(dataKey) || [];
+
+			// Get indices from original data which match, in order
+			var matchIndices = getMatchIndices(data,options);
+
+			// Write out the stream
+			_.each(matchIndices, function(matchIndex, cb) {
+				stream.write(_.clone(data[matchIndex]));
+			});
+
+			// Finish stream
+			stream.end();
+		},
+
 		// Update one or more models in the collection
 		update: function(collectionName, options, values, cb) {
 			var my = this;
