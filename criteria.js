@@ -112,44 +112,8 @@ function matchAnd(model, conjuncts) {
 
 function matchLike(model, criteria) {
 	for(var key in criteria) {
-
-		var matchString = criteria[key];
-
-		if(_.isRegExp(matchString)) {
-			// awesome
-		} else if(_.isString(matchString)) {
-			// Handle escaped percent (%) signs
-			matchString = matchString.replace(/%%%/g, '%');
-
-			// Replace SQL % match notation with something the ECMA regex parser can handle
-			matchString = matchString.replace(/([^%]*)%([^%]*)/g, '$1.*$2');
-
-			// Case insensitive by default
-			var modifiers = 'i';
-			// TODO: make this overridable
-			matchString = new RegExp('^' + matchString + '$', modifiers);
-		}
-		// Unexpected match string!
-		else {
-			console.error('matchString:');
-			console.error(matchString);
-			throw new Error("Unexpected match string: " + matchString + " Please use a regexp or string.");
-		}
-
-		// Deal with non-strings by creating index
-		var index = model[key];
-		if(_.isNumber(index)) index = "" + index;
-		else if(_.isBoolean(index)) index = index ? "true" : "false";
-		else if(!_.isString(index)) {
-			// Ignore objects, arrays, null, and undefined data for now
-			// (and maybe forever)
-			return false;
-		}
-
-		// Check that criterion attribute and is at least similar to the model's value for that attr
-		if(!index.match(matchString)) {
-			return false;
-		}
+		// Return false if no match is found
+		if (!checkLike(model[key], criteria[key])) return false;
 	}
 	return true;
 }
@@ -181,9 +145,10 @@ function matchItem(model, key, criterion, parentKey) {
 		else if (key === 'lessThanOrEqual' || key === '<=')  {
 			return matchLiteral(model,parentKey,criterion, compare['<=']);
 		}
-		else if (key === 'startsWith') return matchLiteral(model,parentKey,criterion, _.str.startsWith);
-		else if (key === 'endsWith') return matchLiteral(model,parentKey,criterion, _.str.endsWith);
-		else if (key === 'contains') return matchLiteral(model,parentKey,criterion, _.str.contains);
+		else if (key === 'startsWith') return matchLiteral(model,parentKey,criterion, checkStartsWith);
+		else if (key === 'endsWith') return matchLiteral(model,parentKey,criterion, checkEndsWith);
+		else if (key === 'contains') return matchLiteral(model,parentKey,criterion, checkContains);
+		else if (key === 'like') return matchLiteral(model,parentKey,criterion, checkLike);
 		else throw new Error ('Invalid query syntax!');
 	}
 	else if(key.toLowerCase() === 'or') {
@@ -260,7 +225,7 @@ function validSubAttrCriteria(c) {
 		c.not || c.greaterThan || c.lessThan || 
 		c.greaterThanOrEqual || c.lessThanOrEqual ||
 		c['<'] || c['<='] || c['!'] || c['>'] || c['>='] ||
-		c.startsWith || c.endsWith || c.contains
+		c.startsWith || c.endsWith || c.contains || c.like
 	);
 }
 
@@ -289,4 +254,67 @@ function matchLiteral(model, key, criterion, matchFn) {
 
 	// Otherwise this is a match
 	return true;
+}
+
+
+function checkStartsWith (value, matchString) {
+	// console.log("CheCKING startsWith ", value, "against matchString:", matchString, "result:",sqlLikeMatch(value, matchString));
+	return sqlLikeMatch(value, matchString + '%');
+}
+function checkEndsWith (value, matchString) {
+	return sqlLikeMatch(value, '%' + matchString);
+}
+function checkContains (value, matchString) {
+	return sqlLikeMatch(value, '%' + matchString + '%');
+}
+function checkLike (value, matchString) {
+	// console.log("CheCKING  ", value, "against matchString:", matchString, "result:",sqlLikeMatch(value, matchString));
+	return sqlLikeMatch(value, matchString);
+}
+
+function sqlLikeMatch (value,matchString) {
+
+	if(_.isRegExp(matchString)) {
+		// awesome
+	} else if(_.isString(matchString)) {
+		// Handle escaped percent (%) signs
+		matchString = matchString.replace(/%%%/g, '%');
+
+		// Escape regex
+		matchString = escapeRegExp(matchString);
+
+		// Replace SQL % match notation with something the ECMA regex parser can handle
+		matchString = matchString.replace(/([^%]*)%([^%]*)/g, '$1.*$2');
+
+		// Case insensitive by default
+		// TODO: make this overridable
+		var modifiers = 'i';
+		
+		matchString = new RegExp('^' + matchString + '$', modifiers);
+	}
+	// Unexpected match string!
+	else {
+		console.error('matchString:');
+		console.error(matchString);
+		throw new Error("Unexpected match string: " + matchString + " Please use a regexp or string.");
+	}
+
+	// Deal with non-strings
+	if(_.isNumber(value)) value = "" + value;
+	else if(_.isBoolean(value)) value = value ? "true" : "false";
+	else if(!_.isString(value)) {
+		// Ignore objects, arrays, null, and undefined data for now
+		// (and maybe forever)
+		return false;
+	}
+
+	// Check that criterion attribute and is at least similar to the model's value for that attr
+	if(!value.match(matchString)) {
+		return false;
+	}
+	return true;
+}
+
+function escapeRegExp(str) {
+	return str.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, "\\$&");
 }
