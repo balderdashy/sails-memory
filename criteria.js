@@ -49,6 +49,10 @@ function applySort(data, sort) {
 
 			// Basic MongoDB-style numeric sort direction
 			if(direction === 1 || direction === -1) comparator = function(model) {
+				// Convert dates to timestamps
+				if (_.isDate(model[attrName])) {
+					return model[attrName].getTime();
+				}
 				return model[attrName];
 			};
 			else comparator = comparator;
@@ -289,7 +293,7 @@ function sqlLikeMatch (value,matchString) {
 		// Case insensitive by default
 		// TODO: make this overridable
 		var modifiers = 'i';
-		
+
 		matchString = new RegExp('^' + matchString + '$', modifiers);
 	}
 	// Unexpected match string!
