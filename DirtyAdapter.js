@@ -190,6 +190,43 @@ module.exports = (function () {
 			});
 		},
 
+		// Required for alter() to work
+
+		// // Add an attribute to the schema
+		// addAttribute: function(collectionName, attrName, attrDef, cb) {
+		// 	// Get schema
+		// 	var schema = connections[collectionName].db.get(schemaPrefix + collectionName);
+
+		// 	// Update with new attribute
+		// 	schema.attributes = schema.attributes[attrName] = _.clone(attrDef);
+
+		// 	return connections[collectionName].db.set(schemaPrefix + collectionName, schema, function(err) {
+		// 		if(err) return cb(err);
+
+		// 		// Update in-memory definition for this collection
+		// 		statusDb[collectionName] = schema;
+		// 		cb();
+		// 	});
+		// },
+
+		// // Remove an attribute from the schema
+		// removeAttribute: function(collectionName, attrName, cb) {
+		// 	console.log("REMOVING ",attrName);
+		// 	// Get schema
+		// 	var schema = connections[collectionName].db.get(schemaPrefix + collectionName);
+
+		// 	// Update to remove attribute
+		// 	delete schema.attributes[attrName];
+
+		// 	return connections[collectionName].db.set(schemaPrefix + collectionName, schema, function(err) {
+		// 		if(err) return cb(err);
+
+		// 		// Update in-memory definition for this collection
+		// 		statusDb[collectionName] = schema;
+		// 		cb();
+		// 	});
+		// },
+
 
 		// Create one or more new models in the collection
 		create: function(collectionName, values, cb) {
