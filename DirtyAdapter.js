@@ -379,7 +379,7 @@ module.exports = (function () {
 		else  {
 
 			// Check that filePath file exists and build tree as neessary
-			require('fs-extra').touch(collection.filePath, function(err) {
+			require('fs-extra').createFile(collection.filePath, function(err) {
 				if(err) return cb(err);
 				
 				var fileDb = new(dirty.Dirty)(collection.filePath);
