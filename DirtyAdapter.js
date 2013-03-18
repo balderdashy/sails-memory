@@ -380,9 +380,10 @@ module.exports = (function () {
 
 			// Node v0.10.0 compatibility error
 			if (process.version === 'v0.10.0') {
-				sails.log.error("Because of an underlying issue with felixge's node-dirty (),");
+				sails.log.error("Because of an underlying issue with felixge's node-dirty (https://github.com/felixge/node-dirty/issues/34),");
 				sails.log.error("the development-only persistent disk store in the sails-dirty adapter is not compatibile with node v0.10.0.");
 				sails.log.error("Please use the MySQL or MongoDB adapter, switch the inMemory flag to true, or revert to node 0.8.22 using a solution like TJ Hollaway's `n`.");
+				sails.log.error("Please check twiter (@sailsjs) for updates on a fix, or check out the node-dirty repository to submit a patch.");
 				process.exit(1);
 			}
 
