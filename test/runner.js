@@ -7,7 +7,7 @@
  */
 
 var tests = require('waterline-adapter-tests'),
-    adapter = require('../DirtyAdapter'),
+    adapter = require('../index'),
     mocha = require('mocha');
 
 /**

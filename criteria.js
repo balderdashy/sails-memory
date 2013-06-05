@@ -1,5 +1,4 @@
-var _ = require('underscore');
-_.str = require('underscore.string');
+var _ = require('lodash');
 
 // Find models in data which satisfy the options criteria, 
 // then return their indices in order

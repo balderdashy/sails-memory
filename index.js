@@ -5,7 +5,7 @@
 	This memory adapter is for development only!
 ---------------------------------------------------------------*/
 
-var _ = require('underscore');
+var _ = require('lodash');
 
 
 module.exports = (function () {
