@@ -22,8 +22,6 @@
   "license": "MIT",
   "readmeFilename": "README.md",
   "dependencies": {
-    "dirty": "0.9.7",
-    "underscore": "~1.4.3",
     "lodash": "~1.2.1"
   },
   "devDependencies": {
