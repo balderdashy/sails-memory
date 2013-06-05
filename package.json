@@ -26,6 +26,7 @@
     "waterline-criteria": "0.0.0"
   },
   "devDependencies": {
-    "mocha": "~1.10.0"
+    "mocha": "~1.10.0",
+    "waterline-adapter-tests": "~0.0.0"
   }
 }
