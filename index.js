@@ -11,7 +11,7 @@ var _ = require('lodash');
 module.exports = (function () {
 
 	// Load criteria module
-	var getMatchIndices = require('./criteria.js');
+	var getMatchIndices = require('waterline-criteria');
 
 	// Maintain connections to open file and memory stores
 	var connections = {	};
