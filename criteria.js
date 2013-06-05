@@ -48,7 +48,7 @@ function applySort(data, sort) {
 			var comparator;
 
 			// Basic MongoDB-style numeric sort direction
-			if(direction === 1 || direction === -1) comparator = function(model) {
+			if(direction <= 1 || direction >= -1) comparator = function(model) {
 				// Convert dates to timestamps
 				if (_.isDate(model[attrName])) {
 					return model[attrName].getTime();
@@ -62,7 +62,7 @@ function applySort(data, sort) {
 
 
 			// Reverse it if necessary (if -1 direction specified)
-			if(direction === -1) sortedData.reverse();
+			if(direction === -1 || direction === 0) sortedData.reverse();
 		});
 		return sortedData;
 	}
