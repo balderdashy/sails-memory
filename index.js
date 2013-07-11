@@ -30,7 +30,9 @@ module.exports = (function () {
 		migrate: 'alter',
 
 		// Default configuration for collections
-		defaults: { },
+		defaults: {
+			schema: false
+		},
 
 		registerCollection: function (collection, cb) {
 			// Save reference to collection so we have it
