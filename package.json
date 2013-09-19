@@ -22,11 +22,11 @@
   "license": "MIT",
   "readmeFilename": "README.md",
   "dependencies": {
-    "lodash": "1.2.1",
-    "waterline-criteria": "~0.9.1"
+    "lodash": "~2.0.0",
+    "waterline-criteria": "git://github.com/balderdashy/waterline-criteria.git#associations"
   },
   "devDependencies": {
-    "mocha": "1.10.0",
-    "waterline-adapter-tests": "~0.9.3"
+    "mocha": "~1.13.0",
+    "waterline-adapter-tests": "git://github.com/balderdashy/waterline-adapter-tests.git#associations"
   }
 }
