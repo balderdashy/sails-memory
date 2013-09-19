@@ -2,7 +2,7 @@
   "name": "sails-memory",
   "version": "0.9.1",
   "description": "Non-persistent, in-memory adapter for Sails.js / Waterline",
-  "main": "index.js",
+  "main": "lib/adapter.js",
   "scripts": {
     "test": "node test/runner.js"
   },
