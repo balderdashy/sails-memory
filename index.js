@@ -191,6 +191,10 @@ module.exports = (function () {
                 groupedResults.forEach(function(group, i) {
                   options.min.forEach(function(sumKey) {
                     
+                    var columnAttributes = schema[collectionName].attributes[sumKey];
+                    var targetDataType = columnAttributes.type.toLowerCase();
+                    var isDateType = targetDataType === 'datetime' || targetDataType === 'date' || targetDataType === 'time';
+                    
                     // keep track of current minimum
                     var min = Infinity;
 
@@ -200,10 +204,23 @@ module.exports = (function () {
                         if(item[sumKey] < min) {
                           min = item[sumKey];
                         }
+                      } else if (isDateType) {
+                        var dateValue = new Date(item[sumKey]);
+                        if (!_.isNaN(dateValue.valueOf())) {
+                          if (min === Infinity || dateValue.valueOf() < min.valueOf()) {
+                            min = dateValue;
+                          }
+                        }
                       }
                     });
                     
-                    finishedResults[i][sumKey] = isFinite(min) ? min : null;
+                    // convert min to correct data type before returning
+                    if (isDateType) {
+                      finishedResults[i][sumKey] = min === Infinity ? null : min.toJSON();
+                    } else {
+                      finishedResults[i][sumKey] = isFinite(min) ? min : null;
+                    }
+                    
                   });
                 });
               }
@@ -214,6 +231,10 @@ module.exports = (function () {
                 groupedResults.forEach(function(group, i) {
                   options.max.forEach(function(sumKey) {
                     
+                    var columnAttributes = schema[collectionName].attributes[sumKey];
+                    var targetDataType = columnAttributes.type.toLowerCase();
+                    var isDateType = targetDataType === 'datetime' || targetDataType === 'date' || targetDataType === 'time';
+                    
                     // keep track of current maximum
                     var max = -Infinity;
 
@@ -223,10 +244,23 @@ module.exports = (function () {
                         if(item[sumKey] > max) {
                           max = item[sumKey];
                         }
+                      } else if (isDateType) {
+                        var dateValue = new Date(item[sumKey]);
+                        if (!_.isNaN(dateValue.valueOf())) {
+                          if (max === -Infinity || dateValue.valueOf() > max.valueOf()) {
+                            max = dateValue;
+                          }
+                        }
                       }
                     });
                     
-                    finishedResults[i][sumKey] = isFinite(max) ? max : null;
+                    // convert max to correct data type before returning
+                    if (isDateType) {
+                      finishedResults[i][sumKey] = max === -Infinity ? null : max.toJSON();
+                    } else {
+                      finishedResults[i][sumKey] = isFinite(max) ? max : null;
+                    }
+                    
                   });
                 });
               }
