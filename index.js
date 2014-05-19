@@ -20,6 +20,7 @@ module.exports = (function () {
 	var data = { };
 	var schema = { };
 	var counters = { };
+	var collections = { };
 
 	var adapter = {
 
@@ -28,37 +29,35 @@ module.exports = (function () {
 
 		// How this adapter should be synced
 		migrate: 'alter',
-
-		// Default configuration for collections
+		// Allow a schemaless datastore
 		defaults: {
 			schema: false
 		},
 
 		registerCollection: function (collection, cb) {
 			// Save reference to collection so we have it
-			schema[collection.identity] = collection;
+			collection[collection.identity] = collection;
 			cb();
 		},
 
 		// Return attributes
 		describe: function (collectionName, cb) {
-			cb(null, schema[collectionName].attributes);
+			cb(null, schema[collectionName]);
 		},
 
 		// Adapters are not responsible for checking for existence of the collection
 		define: function (collectionName, definition, cb) {
-
 			data[collectionName] = [];
 			counters[collectionName] = {};
-			schema[collectionName].attributes = _.clone(definition);
+			schema[collectionName] = _.clone(definition);
 
-			cb(null, schema[collectionName].attributes);
+			cb(null, schema[collectionName]);
 		},
 
 		drop: function (collectionName, cb) {
 			
 			delete data[collectionName];
-			delete schema[collectionName].attributes;
+			delete schema[collectionName];
 			delete counters[collectionName];
 
 			cb();
@@ -239,9 +238,9 @@ module.exports = (function () {
 
 		create: function (collectionName, values, cb) {
 
-			for (var attrName in schema[collectionName].attributes) {
+			for (var attrName in schema[collectionName]) {
 
-				var attrDef = schema[collectionName].attributes[attrName];
+				var attrDef = schema[collectionName][attrName];
 
 				if (attrDef.unique) {
 					for (var index in data[collectionName]) {
