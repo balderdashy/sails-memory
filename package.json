@@ -22,7 +22,7 @@
   "license": "MIT",
   "readmeFilename": "README.md",
   "dependencies": {
-    "lodash": "1.2.1",
+    "lodash": "~2.4.0",
     "waterline-criteria": "~0.9.1"
   },
   "devDependencies": {
