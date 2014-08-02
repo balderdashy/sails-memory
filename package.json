@@ -32,7 +32,7 @@
     "waterline-criteria": "~0.10.2",
     "waterline-errors": "~0.10.0",
     "async": "~0.2.9",
-    "waterline-cursor": "git://github.com/balderdashy/waterline-cursor.git#master"
+    "waterline-cursor": "~0.0.3"
   },
   "devDependencies": {
     "mocha": "~1.13.0",
