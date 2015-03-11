@@ -272,6 +272,10 @@ module.exports = (function () {
 				}
 			}
 
+      if(!data[collectionName]) {
+        data[collectionName] = [];
+      }
+
 			data[collectionName].push(values);
 
 			cb(null, values);
