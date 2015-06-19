@@ -47,7 +47,9 @@
       "associations"
     ],
     "features": [
-      "cross-adapter"
+      "cross-adapter",
+      "unique",
+      "autoIncrement.sequential"
     ]
   }
 }
