@@ -32,7 +32,7 @@
     "waterline-criteria": "1.0.1",
     "waterline-errors": "0.10.1",
     "async": "1.5.2",
-    "waterline-cursor": "0.0.6"
+    "waterline-cursor": "0.0.7"
   },
   "devDependencies": {
     "mocha": "2.5.3",
