@@ -32,12 +32,11 @@
     "waterline-criteria": "1.0.1",
     "waterline-errors": "0.10.1",
     "async": "1.5.2",
-    "waterline-cursor": "0.0.6"
+    "waterline-cursor": "0.0.7"
   },
   "devDependencies": {
     "mocha": "2.5.3",
-    "waterline-adapter-tests": "~0.12.0",
-    "captains-log": "0.11.11"
+    "waterline-adapter-tests": "~0.12.1"
   },
   "waterlineAdapter": {
     "waterlineVersion": "~0.10.0",
